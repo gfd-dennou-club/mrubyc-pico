@@ -1,4 +1,4 @@
-# A sample mruby/c project for RaspberryPi Pico
+# A mruby/c project for RaspberryPi Pico
 
 
 ### Getting started
@@ -26,15 +26,29 @@
     make
     ```
 
-    Now you should have `l-chika.uf2` file in `build/` directory.
+    Now you should have `master.uf2` file in `build/` directory.
 
-### "l-chika" ?
+### How to edit Ruby file
 
-It means "LED blinking" in Japanese.
+Please see src/master.rb  
+
+### Directory tree
+
+.
+├── CMakeLists.txt
+├── README.md
+├── build
+├── components   : mruby/c source is here!
+├── main         : program files written by C
+├── mrblib       : class and method written by ruby
+├── pico_sdk_import.cmake
+└── src          : main file (ruby) is here!
+
 
 ### Acknowledgement
 
-This project is a successor of [aikawaYO/mrubyc-pico](https://github.com/aikawaYO/mrubyc-pico) which uses mruby/c version 2.x.
+This project is a successor of [aikawaYO/mrubyc-pico](https://github.com/aikawaYO/mrubyc-pico) which uses mruby/c version 2.x and 
+ [picoruby/mrubyc-pico](https://github.com/picoruby/mrubyc-pico) which uses mruby/c version 3.0.
 
 ### Contributing
 
