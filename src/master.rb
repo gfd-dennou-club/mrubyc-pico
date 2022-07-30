@@ -1,4 +1,22 @@
 
+#=begin
+###
+### use onboard LED and temperature sensor.
+###
+
+pin25 = GPIO.new(25, Pin::OUT)
+adc = OnboardADC.new  #onboard Temp.
+
+while true
+  puts "ADC    : #{adc.read}"
+  pin25.on
+  sleep( 2 )
+  pin25.off
+  sleep( 1 )
+end
+#=end
+
+
 =begin
 pin18 = Pin.new(18, Pin::IN)
 adc = ADC.new(26) #Rotary Angle Sensor
@@ -39,17 +57,4 @@ while true
   sleep( 1 )
 end
 =end
-
-#=begin
-pin25 = GPIO.new(25, Pin::OUT)
-adc = OnboardADC.new  #onboard Temp.
-
-while true
-  puts "ADC    : #{adc.read}"
-  pin25.on
-  sleep( 2 )
-  pin25.off
-  sleep( 1 )
-end
-#=end
 
