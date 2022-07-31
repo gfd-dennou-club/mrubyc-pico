@@ -33,17 +33,17 @@
 Please see src/master.rb  
 
 ### Directory tree
-
+```
 .
 ├── CMakeLists.txt
 ├── README.md
 ├── build
-├── components   : mruby/c source is here!
+├── components   : include files (mruby/c source is here!)
 ├── main         : program files written by C
-├── mrblib       : class and method written by ruby
+├── mrblib       : class and method written by Ruby
 ├── pico_sdk_import.cmake
-└── src          : main file (ruby) is here!
-
+└── src          : main file (Ruby) is here!
+```
 
 ### Acknowledgement
 
