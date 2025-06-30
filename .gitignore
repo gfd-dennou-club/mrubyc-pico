@@ -1,1 +1,4 @@
-tags
+/.ruby-version
+
+/build/*
+!/build/.keep

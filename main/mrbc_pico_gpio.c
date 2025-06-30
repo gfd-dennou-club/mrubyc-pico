@@ -1,64 +1,66 @@
+/*
+* mruby/c I/O APIガイド実装のためのGPIO制御関数をRubyから利用可能にする。
+*
+* GPIO実際のAPIはRubyコードにて実装される。
+*
+* APIガイドは下記を参照：
+* - https://github.com/mruby/microcontroller-peripheral-interface-guide
+*/
 #include "mrbc_pico_gpio.h"
 #include "hardware/gpio.h"
+#include "mrubyc.h"
 
-//      GPIO_IN          0b000 (defined in the SDK)
-#define GPIO_IN_PULLUP   0b010
-#define GPIO_IN_PULLDOWN 0b110
-//      GPIO_OUT         0b001 (defined in the SDK)
-#define GPIO_OUT_LO      0b011
-#define GPIO_OUT_HI      0b101
+// #define GPIO_IN          0x00 (defined in the SDK)
+// #define GPIO_OUT         0x01 (defined in the SDK)
+// #define GPIO_IN_PULLUP   0x10
+// #define GPIO_IN_PULLDOWN 0x20
 
-/*
-void c_led_init(mrb_vm *vm, mrb_value *v, int argc) {
-    int pin = GET_INT_ARG(1);
-    gpio_init(pin);
-    gpio_set_dir(pin, GPIO_OUT);
-}
-
-void c_led_write(mrb_vm *vm, mrb_value *v, int argc) {
-    int pin = GET_INT_ARG(1);
-    int val = GET_INT_ARG(2);
-    gpio_put(pin, val);
-}
-*/
-
-static void
-mrbc_pico_gpio_mode_input(mrb_vm* vm, mrb_value* v, int argc)
+void mrbc_pico_gpio_init(mrb_vm* vm, mrb_value* v, int argc)
 {
   int pin = GET_INT_ARG(1);
   gpio_init(pin);
-  gpio_set_dir(pin, GPIO_IN);
 }
 
-static void
-mrbc_pico_gpio_mode_output(mrb_vm* vm, mrb_value* v, int argc)
+void mrbc_pico_gpio_set_dir(mrb_vm* vm, mrb_value* v, int argc)
 {
   int pin = GET_INT_ARG(1);
-  gpio_init(pin);
-  gpio_set_dir(pin, GPIO_OUT);
+  int out = GET_INT_ARG(2) != 0; // bool
+  gpio_set_dir(pin, out);
 }
 
-static void
-mrbc_pico_gpio_set_level(mrb_vm* vm, mrb_value* v, int argc)
+void mrbc_pico_gpio_set_pulls(mrb_vm* vm, mrb_value* v, int argc)
+{
+  int pin = GET_INT_ARG(1);
+  int pullup = GET_INT_ARG(2) != 0; // bool
+  int pulldown = GET_INT_ARG(3) != 0; // bool
+  gpio_set_pulls(pin, pullup, pulldown);
+}
+
+void mrbc_pico_gpio_put(mrb_vm* vm, mrb_value* v, int argc)
 {
   int pin   = GET_INT_ARG(1);
   int level = GET_INT_ARG(2);
   gpio_put(pin, level);
 }
 
-static void
-mrbc_pico_gpio_get_level(mrb_vm* vm, mrb_value* v, int argc)
+void mrbc_pico_gpio_get(mrb_vm* vm, mrb_value* v, int argc)
 {
   int pin = GET_INT_ARG(1);
   SET_INT_RETURN(gpio_get(pin));
 }
 
-void
-mrbc_pico_gpio_gem_init(struct VM* vm)
+void mrbc_pico_gpio_gem_init(struct VM* vm)
 {
-  //メソッド定義
-  mrbc_define_method(0, mrbc_class_object, "gpio_mode_input", mrbc_pico_gpio_mode_input);
-  mrbc_define_method(0, mrbc_class_object, "gpio_mode_output", mrbc_pico_gpio_mode_output);
-  mrbc_define_method(0, mrbc_class_object, "gpio_set_level", mrbc_pico_gpio_set_level);
-  mrbc_define_method(0, mrbc_class_object, "gpio_get_level", mrbc_pico_gpio_get_level);
+  // Rubyのメソッド定義（Objectクラスに追加）
+  mrbc_define_method(0, mrbc_class_object, "mrbc_gpio_init", mrbc_pico_gpio_init);
+  mrbc_define_method(0, mrbc_class_object, "mrbc_gpio_set_dir", mrbc_pico_gpio_set_dir);
+  mrbc_define_method(0, mrbc_class_object, "mrbc_gpio_set_pulls", mrbc_pico_gpio_set_pulls);
+  mrbc_define_method(0, mrbc_class_object, "mrbc_gpio_put", mrbc_pico_gpio_put);
+  mrbc_define_method(0, mrbc_class_object, "mrbc_gpio_get", mrbc_pico_gpio_get);
+
+  // // Rubyクラス名を定義
+  // mrbc_class *mrbc_class = mrbc_define_class(0, "GPIO", 0);
+
+  // // Rubyのメソッド定義（GPIOクラスに追加）
+  // mrbc_define_method(0, mrbc_class, "sample", mrbc_pico_gpio_sample);
 }

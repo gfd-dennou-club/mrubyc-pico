@@ -1,5 +1,8 @@
-/* mruby/c VM */
+#ifndef MRBC_PICO_GPIO_H
+#define MRBC_PICO_GPIO_H
 
-#include "../components/mrubyc/src/mrubyc.h"
+struct VM; // #include "mruby.h"
 
 void mrbc_pico_gpio_gem_init(struct VM* vm);
+
+#endif // MRBC_PICO_GPIO_H

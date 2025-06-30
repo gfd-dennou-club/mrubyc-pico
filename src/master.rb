@@ -4,14 +4,14 @@
 ### use onboard LED and temperature sensor.
 ###
 
-pin25 = GPIO.new(25, Pin::OUT)
-adc = OnboardADC.new  #onboard Temp.
+# pin25 = GPIO.new(25, Pin::OUT)
+# adc = OnboardADC.new  #onboard Temp.
 
 while true
-  puts "ADC    : #{adc.read}"
-  pin25.on
-  sleep( 2 )
-  pin25.off
+  puts "ADC   "
+  # pin25.on
+  # sleep( 2 )
+  # pin25.off
   sleep( 1 )
 end
 #=end
