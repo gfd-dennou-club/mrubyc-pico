@@ -16,14 +16,18 @@ project(main)
 pico_sdk_init()
 
 # mruby/cのコンパイルオプションの設定
-add_compile_options(-DMRBC_USE_HAL_RP2040 -DMRBC_REQUIRE_32BIT_ALIGNMENT -DMAX_REGS_SIZE=256 -DMAX_SYMBOLS_COUNT=500)
+add_compile_options(-DMRBC_NO_TIMER -DMRBC_USE_HAL_RP2040 -DMRBC_REQUIRE_32BIT_ALIGNMENT -DMAX_REGS_SIZE=256 -DMAX_SYMBOLS_COUNT=500)
 
 # mainの構成ファイル
 add_executable(main
   main/main.c
   main/mrbc_pico_gpio.c
+  main/mrbc_pico_pwm.c
+  main/mrbc_pico_adc.c
+  main/mrbc_pico_i2c.c
   main/mrbc_pico_bootsel.c
   main/bootsel.c
+  main/hal.c
   main/mrbwrite.c
   main/vfs.c
   ${CMAKE_CURRENT_BINARY_DIR}/mrblib.c
@@ -53,7 +57,12 @@ add_executable(main
 )
 
 # Pico SDKのライブラリをリンク
-target_link_libraries(main pico_stdlib)
+target_link_libraries(main
+  pico_stdlib
+  hardware_pwm
+  hardware_adc
+  hardware_i2c
+)
 
 # mainでincludeされるファイル
 target_include_directories(main PUBLIC

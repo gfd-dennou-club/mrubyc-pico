@@ -1,26 +1,34 @@
+/*! @file
+  @brief mruby/c用のコマンドライン機能
+
+  ユーザーからのコマンド入力を受け取り，解析して適切なコマンド番号を返す機能と，
+  バイトコードのヘキサダンプ表示機能を提供する．
+*/
 #include "mrbwrite.h"
 #include "pico/stdlib.h" 
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-/*
-* ユーザ入力のコマンドを返す。
-*
-* @param timeout_us タイムアウト時間（マイクロ秒）。
-* @param size writeコマンドのときに書き込みサイズが設定される。呼び出し側で利用しない場合はNULLを指定可能。
-* @return 下記のコマンド番号。
-*     -2: 正しくないコマンド
-*     -1: タイムアウト
-*     0: (CR+LF)  - コマンドモード
-*     1: reset    - ソフトウェアリセット
-*     2: execute  - mrubyプログラム実行
-*     3: write    - mrubyバイトコード書き込み
-*     4: clear    - 書き込み済みバイトコードの消去
-*     5: help     - コマンド一覧表示（人間用）
-*     6: version  - バージョン表示
-*     7: showprog - 書き込み済みプログラムサイズ表示（人間用）
-*     8: verify   - バイトコード検証
+/** @brief ユーザー入力のコマンド番号取得
+
+  シリアル入力からコマンドを受け取り，対応するコマンド番号を返す．
+  writeコマンドの場合は，サイズパラメータも同時に取得する．
+
+  @param timeout_us タイムアウト時間（マイクロ秒）
+  @param size writeコマンドのときに書き込みサイズが設定される．呼び出し側で利用しない場合はNULLを指定可能
+  @return 下記のコマンド番号
+      -2: 正しくないコマンド
+      -1: タイムアウト
+      0: (CR+LF)  - コマンドモード
+      1: reset    - ソフトウェアリセット
+      2: execute  - mrubyプログラム実行
+      3: write    - mrubyバイトコード書き込み
+      4: clear    - 書き込み済みバイトコードの消去
+      5: help     - コマンド一覧表示（人間用）
+      6: version  - バージョン表示
+      7: showprog - 書き込み済みプログラムサイズ表示（人間用）
+      8: verify   - バイトコード検証
 */
 int mrbwrite_get_cmd (uint32_t timeout_us, uint32_t *size) {
   const uint32_t buffer_size = 16; // コマンドバッファのサイズ
@@ -63,12 +71,15 @@ int mrbwrite_get_cmd (uint32_t timeout_us, uint32_t *size) {
   return MRBWRITE_ILLEGAL;
 }
 
-/*
-* 指定されたファイルのバイトコードの表示。
-*
-* @param filename 表示対象のファイル名。
-* @param buffer バイトコードデータが格納されたバッファのポインタ。
-* @param size バイトコードのサイズ（バイト単位）。
+/** @brief バイトコードのヘキサダンプ表示
+
+  指定されたバッファのバイトコードを16進数とASCII文字で見やすく表示する．
+  デバッグやプログラム確認用途で使用される．
+
+  @param filename 表示対象のファイル名
+  @param buffer バイトコードデータが格納されたバッファのポインタ
+  @param size バイトコードのサイズ（バイト単位）
+  @return void
 */
 void mrbwrite_showprog(const char *filename, uint8_t* buffer, uint32_t size) {  
   // ファイル名とヘッダーを表示

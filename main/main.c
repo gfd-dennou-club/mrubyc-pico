@@ -1,3 +1,10 @@
+/*! @file
+  @brief mruby/cメインエントリポイント
+
+  ボードの初期化，ファイルシステムの初期化，mrbwriteコマンドモードの処理，
+  mruby/cプログラムを実行する．
+*/
+
 //*********************************************
 // main関数で使われるライブラリ
 //*********************************************
@@ -17,6 +24,9 @@ int mrbwrite_cmd_mode();
 #include "mrubyc.h"
 #include "mrbc_pico_bootsel.h"
 #include "mrbc_pico_gpio.h"
+#include "mrbc_pico_pwm.h"
+#include "mrbc_pico_adc.h"
+#include "mrbc_pico_i2c.h"
 
 //*********************************************
 // ENABLE LIBRARY written by C (Utilities)
@@ -28,13 +38,12 @@ int mrbwrite_cmd_mode();
 #define MEMORY_SIZE (1024 * 128)
 static uint8_t memory_pool[MEMORY_SIZE];
 
-/*
-* プログラムのメイン関数。
-*
-* ボードの初期化、ファイルシステムの初期化、mrbwriteコマンドモードの処理、
-* mruby/cプログラムを実行する。
-*
-* @return プログラム終了コード。
+/** @brief プログラムのメイン関数
+
+  ボードの初期化，ファイルシステムの初期化，mrbwriteコマンドモードの処理，
+  mruby/cプログラムを実行する．
+
+  @return プログラム終了コード
 */
 int main() {
   //************************************
@@ -93,6 +102,9 @@ int main() {
 
   mrbc_pico_bootsel_gem_init(0);
   mrbc_pico_gpio_gem_init(0);
+  mrbc_pico_pwm_gem_init(0);
+  mrbc_pico_adc_gem_init(0);
+  mrbc_pico_i2c_gem_init(0);
 
   // Ruby 側のクラス・メソッド定義
   extern const uint8_t myclass_bytecode[];
@@ -117,13 +129,12 @@ int main() {
 // main関数で使われるユーティリティ
 // ************************************
 
-/*
-* mrbwriteコマンドモードのメイン処理。
-*
-* ユーザからのコマンドを受け付け、適切な処理を実行する。
-* 各コマンドに対してバイトコードの書き込み、読み込み、リセットなどを実行する。
-*
-* @return 継続時は1、終了時は0を返却する。
+/** @brief mrbwriteコマンドモードのメイン処理
+
+  ユーザからのコマンドを受け付け，適切な処理を実行する．
+  各コマンドに対してバイトコードの書き込み，読み込み，リセットなどを実行する．
+
+  @return 継続時は1，終了時は0を返却する
 */
 int mrbwrite_cmd_mode() {
   // writeコマンドで使用するバッファ

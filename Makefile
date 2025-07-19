@@ -22,7 +22,7 @@ build/Makefile: CMakeLists.txt
 
 # ビルド成果物をすべて削除。
 clean:
-	@rm -rf build
+	@rm -rf build/*
 
 mrbc:
 	@mkdir -p build
