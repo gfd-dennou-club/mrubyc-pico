@@ -1,7 +1,9 @@
 /*! @file
   @brief Raspberry Pi Pico向けmruby/c I2Cの関数群
 
-  I2Cバスをサポートするクラス．7ビットアドレスのマスターデバイスとして動作する．
+  I2C（Inter-Integrated Circuit）バスをサポートするクラス．
+  7ビットアドレスのマスターデバイスとして動作する．
+  Ruby向けクラス・メソッドはRubyコードにて実装される．
 
   APIガイドは下記を参照:
   - https://github.com/mruby/microcontroller-peripheral-interface-guide

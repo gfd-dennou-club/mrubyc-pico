@@ -2,8 +2,7 @@
   @brief Raspberry Pi Pico向けmruby/c PWMの関数群
 
   PWM（Pulse Width Modulation）制御機能をRubyから利用可能にする．
-  mruby/c I/O APIガイド実装のためのPWM制御関数をRubyから利用可能にする．
-  PWM実際のAPIはRubyコードにて実装される．
+  Ruby向けクラス・メソッドはRubyコードにて実装される．
 
   APIガイドは下記を参照:
   - https://github.com/mruby/microcontroller-peripheral-interface-guide

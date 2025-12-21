@@ -7,7 +7,7 @@
   GPIO_IN_PULLDOWN : 0x20
 
   mruby/c I/O APIガイド実装のためのGPIO制御関数をRubyから利用可能にする．
-  GPIO実際のAPIはRubyコードにて実装される．
+  Ruby向けクラス・メソッドはRubyコードにて実装される．
 
   APIガイドは下記を参照:
   - https://github.com/mruby/microcontroller-peripheral-interface-guide
