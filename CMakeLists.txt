@@ -1,3 +1,9 @@
+# ====================================================================
+#  mrubyc-picoプロジェクトのCMakeビルド設定
+#
+#  Raspberry Pi Pico向けmruby/c実行環境のビルド設定を定義する．
+# ====================================================================
+
 cmake_minimum_required(VERSION 3.16)
 
 # picotoolのインストール先（ない場合はダウンロード）
@@ -71,16 +77,14 @@ target_include_directories(main PUBLIC
   components/littlefs
 )
 
-# mruby/c組み込みのRubyクラスのコンパイル（components/mrubyc/mrblib/*.rb）
-# コンパイル結果はcomponents/mrubyc/src/mrblib.cへ出力される
+# mruby/c組み込みのRubyクラスのコンパイル（出力先: components/mrubyc/src/mrblib.c）
 add_dependencies(main mrubyc)
 add_custom_target(mrubyc
   COMMAND make distclean all
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/components/mrubyc/mrblib
 )
 
-# 独自定義のRubyクラスのコンパイル（mrblib/*.rb）
-# コンパイル結果はbuild/mrblib.cへ出力される
+# 独自定義のRubyクラスのコンパイル（出力先: build/mrblib.c）
 file(GLOB MRBLIB_RUBY_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/mrblib/*.rb")
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mrblib.c
@@ -92,5 +96,5 @@ add_custom_command(
 pico_enable_stdio_usb(main 1)
 pico_enable_stdio_uart(main 0)
 
-# make後にファームウェアである.uf2を出力する
+# make後に.uf2ファイルを出力
 pico_add_extra_outputs(main)
