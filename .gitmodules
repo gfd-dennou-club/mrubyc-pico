@@ -1,0 +1,16 @@
+[submodule "components/mrubyc"]
+	path = components/mrubyc
+	url = https://github.com/mrubyc/mrubyc.git
+	ignore = dirty
+[submodule "components/pico-sdk"]
+	path = components/pico-sdk
+	url = https://github.com/raspberrypi/pico-sdk.git
+	ignore = dirty
+[submodule "components/littlefs"]
+	path = components/littlefs
+	url = https://github.com/littlefs-project/littlefs.git
+	ignore = dirty
+[submodule "components/picotool"]
+	path = components/picotool
+	url = https://github.com/raspberrypi/picotool.git
+	ignore = dirty
