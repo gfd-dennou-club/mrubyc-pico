@@ -31,6 +31,7 @@ add_executable(main
   main/mrbc_pico_pwm.c
   main/mrbc_pico_adc.c
   main/mrbc_pico_i2c.c
+  main/mrbc_pico_uart.c
   main/mrbc_pico_bootsel.c
   main/bootsel.c
   main/hal.c
@@ -68,6 +69,7 @@ target_link_libraries(main
   hardware_pwm
   hardware_adc
   hardware_i2c
+  hardware_uart
 )
 
 # mainでincludeされるファイル
