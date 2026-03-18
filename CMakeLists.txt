@@ -32,6 +32,7 @@ add_executable(main
   main/mrbc_pico_adc.c
   main/mrbc_pico_i2c.c
   main/mrbc_pico_bootsel.c
+  main/mrbc_pico_break.c
   main/bootsel.c
   main/hal.c
   main/mrbwrite.c
