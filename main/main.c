@@ -195,10 +195,9 @@ int mrbwrite_cmd_mode() {
   }
   // ファイル消去コマンドの処理
   if (cmd == MRBWRITE_CLEAR) {
-    printf("+OK\r\n");
     vfs_remove("master.mrbc");
     vfs_remove("slave.mrbc");
-    printf("+DONE\r\n");
+    printf("+OK\r\n");
   }
 
   // ヘルプコマンドの処理
@@ -221,7 +220,6 @@ int mrbwrite_cmd_mode() {
   }
   // プログラム表示コマンドの処理
   if (cmd == MRBWRITE_SHOWPROG) {
-    printf("+OK\r\n");
     if (vfs_stat_size("master.mrbc", &buffer_size) >= 0 && buffer_size > 0) {
       buffer = calloc(buffer_size, sizeof(uint8_t));
       if (buffer != NULL && vfs_read("master.mrbc", buffer, buffer_size) > 0) {
