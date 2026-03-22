@@ -16,7 +16,7 @@
 #   i2c.write(0x45, 0x30, 0xa2)
 class I2C
   # GPIOの機能定数（I2C用）
-  GPIO_FUNC_I2C = 3 # C: enum gpio_function_rp2040 { GPIO_FUNC_I2C = 3 }
+  GPIO_FUNC_I2C = 3 # C: enum gpio_function_rp2040, gpio_function_rp2350 { GPIO_FUNC_I2C = 3 }
 
   attr_reader :unit, :frequency, :scl_pin, :sda_pin
 
@@ -25,12 +25,16 @@ class I2C
   # @param id [Integer] 物理ユニット番号（0または1，デフォルト: 0）
   # @param frequency [Integer] I2C周波数（Hz単位，デフォルト: 100kHz）
   # @param freq [Integer] frequencyのエイリアス
-  # @param scl_pin [Integer] SCLピン番号（デフォルト: RP2040では5）
-  # @param sda_pin [Integer] SDAピン番号（デフォルト: RP2040では4）
+  # @param scl_pin [Integer] SCLピン番号（デフォルト: 5）
+  # @param sda_pin [Integer] SDAピン番号（デフォルト: 4）
   #
   # RP2040 I2C対応ピン:
-  #   I2C0: SDA=0,4,8,12,16,20  SCL=1,5,9,13,17,21
-  #   I2C1: SDA=2,6,10,14,18,26 SCL=3,7,11,15,19,27
+  #   I2C0: SDA=0,4,8,12,16,20  | SCL=1,5,9,13,17,21
+  #   I2C1: SDA=2,6,10,14,18,26 | SCL=3,7,11,15,19,27
+  #
+  # RP2350 I2C対応ピン:
+  #   I2C0: SDA=0,4,8,12,16,20,24,28 | SCL=1,5,9,13,17,21,25,29
+  #   I2C1: SDA=2,6,10,14,18,22,26   | SCL=3,7,11,15,19,23,27
   #
   # @example
   #   i2c = I2C.new
@@ -49,14 +53,12 @@ class I2C
     # @see https://picodocs.pinout.xyz/group__hardware__i2c.html
     @frequency = (freq || frequency).to_i.clamp(1, 1_000_000)
 
-    # デフォルトピンの設定
-    # RP2040: I2C0 => GP4(SDA), GP5(SCL), I2C1 => GP6(SDA), GP7(SCL)
-    # [TODO] RP2350: I2C0 => GP8(SDA), GP9(SCL), I2C1 => GP10(SDA), GP11(SCL)
+    # デフォルトはボードに合わせる
     if @unit == 0
-      @scl_pin = scl_pin || 5  # RP2040のデフォルト
+      @scl_pin = scl_pin || 5
       @sda_pin = sda_pin || 4
     else
-      @scl_pin = scl_pin || 7  # RP2040のデフォルト
+      @scl_pin = scl_pin || 7
       @sda_pin = sda_pin || 6
     end
 
