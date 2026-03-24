@@ -1,56 +1,79 @@
-# A mruby/c project for RaspberryPi Pico
+# mrubyc-pico
 
+Raspberry Pi Pico / Pico 2向けmruby/cファームウェア・クラスライブラリです．
 
-### Getting started
+クラスライブラリは [mruby, mruby/c 共通I/O APIガイドライン](https://github.com/mruby/microcontroller-peripheral-interface-guide) に準拠します．
 
-- Setup Raspberry Pi Pico C/C++ SDK
+ボードへの電源の投入後，BOOTSELボタンが押下されるまでmrbwriteを待機します．
+このときCR+LFがボードのUSB（UART）へ送信された場合にコマンド受付モードに入ります．
 
-  - Follow the instructions on [https://github.com/raspberrypi/pico-sdk#quick-start-your-own-project](https://github.com/raspberrypi/pico-sdk#quick-start-your-own-project)
-    - Make sure you have `PICO_SDK_PATH` environment variable
+mrbwriteで書き込まれたRubyは，電源投入後のBOOTSELボタン押下で実行されます．
 
-  - Be knowledgeable how to install a UF2 file into Raspi Pico on [https://www.raspberrypi.org/documentation/rp2040/getting-started/#getting-started-with-c](https://www.raspberrypi.org/documentation/rp2040/getting-started/#getting-started-with-c)
+Ruby実行中，または終了後にボードのUSB（UART）へBreak信号が送信された場合，ソフトリセットされます。
 
-  - [https://learn.sparkfun.com/tutorials/pro-micro-rp2040-hookup-guide](https://learn.sparkfun.com/tutorials/pro-micro-rp2040-hookup-guide) will also help you if you use Sparkfun Pro Micro RP2040
+## 対応ボード
 
-- Clone this repository wherever you like
+| ボード | チップ | ビルドターゲット |
+|--------|--------|------------------|
+| Raspberry Pi Pico | RP2040 | `make pico` |
+| Raspberry Pi Pico 2 | RP2350 | `make pico2` |
 
-    ```
-    git clone --recursive https://github.com/hasumikin/mrubyc-pico.git # Don't forget --recursive
-    cd mrubyc-pico/build
-    ```
+## クラスライブラリ
 
-- Build with `cmake` and `make`
+| クラス | 機能 | 共通I/O API |
+|--------|------|---|
+| GPIO | デジタル入出力 | ○ |
+| PWM | PWM出力 | ○ |
+| ADC | アナログ入力 | ○ |
+| I2C | I2C通信 | ○ |
+| UART | UART通信 | ○ |
+| BOOTSEL | BOOTSELボタン読み取り | - |
 
-    ```
-    cmake -DCMAKE_BUILD_TYPE=Debug ..
-    make
-    ```
+## ビルド
 
-    Now you should have `master.uf2` file in `build/` directory.
+### 前提
 
-### How to edit Ruby file
+- cmake
+- gcc-arm-none-eabi
+- ruby（CRuby 3.4+）
 
-Please see src/master.rb  
+### 手順
 
-### Directory tree
+```bash
+# 初回
+git clone --recurse-submodules https://github.com/gfd-dennou-club/mrubyc-pico
+cd mrubyc-pico
+make setup   # mrubyコンパイラ（mrbc）のビルド
+
+# ファームウェア変更のたび（利用するボードのコマンドを実行）
+make pico    # => build/pico/main.uf2
+make pico2   # => build/pico2/main.uf2
+make all     # => 上記すべて
 ```
-.
-├── CMakeLists.txt
-├── README.md
-├── build
-├── components   : include files (mruby/c source is here!)
-├── main         : program files written by C
-├── mrblib       : class and method written by Ruby
-├── pico_sdk_import.cmake
-└── src          : main file (Ruby) is here!
-```
 
-### Acknowledgement
+ビルド成果物は`build/{pico,pico2}/main.uf2`に出力されます．
 
-This project is a successor of [aikawaYO/mrubyc-pico](https://github.com/aikawaYO/mrubyc-pico) which uses mruby/c version 2.x and 
- [picoruby/mrubyc-pico](https://github.com/picoruby/mrubyc-pico) which uses mruby/c version 3.0.
+Raspberry Pi PicoボードのBOOTSELボタンを押しながらUSBケーブルでPCと接続すると，USBメモリのようにファイルを書き込めるようになります．
 
-### Contributing
+上記のUF2ファイルをドラッグ＆ドロップなどで配置します．
+（書き込み後は自動でRaspberry Pi Picoは再起動します）
 
-Fork, clone, patch and send a pull request.
+### Ruby プログラムの編集
 
+`src/master.rb`がメインファイルです．`mrblib/`以下にクラス・メソッドを定義できます．
+
+## Depends on
+
+- [mruby/c (mrubyc/mrubyc)](https://github.com/mrubyc/mrubyc) : mruby 仮想マシンの軽量実装
+- [mruby (mruby/mruby)](https://github.com/mruby/mruby) : mrbc コンパイラの提供元
+- [Raspberry Pi Pico SDK](https://github.com/raspberrypi/pico-sdk)
+- [LittleFS](https://github.com/littlefs-project/littlefs) : フラッシュファイルシステム
+
+## Acknowledgement
+
+Originally forked from [picoruby/mrubyc-pico](https://github.com/picoruby/mrubyc-pico)
+and [aikawaYO/mrubyc-pico](https://github.com/aikawaYO/mrubyc-pico).
+
+## License
+
+See [LICENSE](LICENSE).
