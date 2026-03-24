@@ -108,7 +108,7 @@ int main() {
   mrbc_pico_i2c_gem_init(0);
   mrbc_pico_uart_gem_init(0);
   mrbc_pico_bootsel_gem_init(0);
-  mrbc_pico_break_init(0);
+  mrbc_pico_break_gem_init(0);
 
   // Ruby 側のクラス・メソッド定義
   extern const uint8_t myclass_bytecode[];

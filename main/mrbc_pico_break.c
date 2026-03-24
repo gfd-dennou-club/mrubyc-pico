@@ -33,7 +33,7 @@ void tud_cdc_send_break_cb(uint8_t itf, uint16_t duration_ms) {
 
   @param vm mruby/c VMインスタンス（未使用）
 */
-void mrbc_pico_break_init(struct VM* vm) {
+void mrbc_pico_break_gem_init(struct VM* vm) {
   (void)vm;
 
   // 有効化（0 → 1）
