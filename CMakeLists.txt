@@ -80,10 +80,13 @@ target_include_directories(main PUBLIC
   components/littlefs
 )
 
+# mrubyコンパイラのパス
+set(MRBC ${CMAKE_SOURCE_DIR}/components/mruby/build/host/bin/mrbc)
+
 # mruby/c組み込みのRubyクラスのコンパイル（出力先: components/mrubyc/src/mrblib.c）
 add_dependencies(main mrubyc)
 add_custom_target(mrubyc
-  COMMAND make distclean all
+  COMMAND make distclean all MRBC=${MRBC}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/components/mrubyc/mrblib
 )
 
@@ -91,7 +94,7 @@ add_custom_target(mrubyc
 file(GLOB MRBLIB_RUBY_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/mrblib/*.rb")
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/mrblib.c
-  COMMAND mrbc -B myclass_bytecode --remove-lv -o ${CMAKE_CURRENT_BINARY_DIR}/mrblib.c ${MRBLIB_RUBY_SOURCES}
+  COMMAND ${MRBC} -B myclass_bytecode --remove-lv -o ${CMAKE_CURRENT_BINARY_DIR}/mrblib.c ${MRBLIB_RUBY_SOURCES}
   DEPENDS ${MRBLIB_RUBY_SOURCES}
 )
 
