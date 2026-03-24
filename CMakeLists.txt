@@ -8,11 +8,9 @@ cmake_minimum_required(VERSION 3.16)
 
 # picotoolのインストール先（ない場合はダウンロード）
 set(PICOTOOL_FETCH_FROM_GIT_PATH ${CMAKE_SOURCE_DIR}/components/picotool CACHE PATH "")
+
 # pico-sdkのビルド設定
 set(PICO_SDK_PATH ${CMAKE_SOURCE_DIR}/components/pico-sdk CACHE STRING "")
-set(PICO_PLATFORM rp2040 CACHE STRING "")
-set(PICO_BOARD pico CACHE STRING "")
-set(PICO_COMPILER pico_arm_cortex_m0plus_gcc CACHE STRING "")
 
 # Pico SDKの導入およびプロジェクト設定
 include(components/pico-sdk/pico_sdk_init.cmake)
@@ -24,13 +22,17 @@ pico_sdk_init()
 # mruby/cのコンパイルオプションの設定
 add_compile_options(-DMRBC_NO_TIMER -DMRBC_USE_HAL_RP2040 -DMRBC_REQUIRE_32BIT_ALIGNMENT -DMAX_REGS_SIZE=256 -DMAX_SYMBOLS_COUNT=500)
 
+# mainターゲットの作成
+add_executable(main)
+
 # mainの構成ファイル
-add_executable(main
+target_sources(main PUBLIC
   main/main.c
   main/mrbc_pico_gpio.c
   main/mrbc_pico_pwm.c
   main/mrbc_pico_adc.c
   main/mrbc_pico_i2c.c
+  main/mrbc_pico_uart.c
   main/mrbc_pico_bootsel.c
   main/mrbc_pico_break.c
   main/bootsel.c
@@ -69,6 +71,7 @@ target_link_libraries(main
   hardware_pwm
   hardware_adc
   hardware_i2c
+  hardware_uart
 )
 
 # mainでincludeされるファイル

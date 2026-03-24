@@ -17,8 +17,8 @@ class ADC
 
   # ADCインスタンスの初期化
   #
-  # @param pin [Integer] ADCピン番号（GPIO26-29: RP2040，GPIO40-47: RP2350）
-  # @param params [Hash] ADC設定パラメータ（将来拡張用）
+  # @param pin [Integer] ADCピン番号
+  # @param params [Hash] ADC設定パラメータ
   # @raise [ArgumentError] ピンが無効な場合
   #
   # @example
@@ -31,8 +31,6 @@ class ADC
 
     @pin = pin
 
-    # RP2040: GPIO26-29 -> チャンネル0-3
-    # [TODO] RP2350: GPIO40-47 -> チャンネル0-7
     @channel = case @pin
     when 26 then 0
     when 27 then 1

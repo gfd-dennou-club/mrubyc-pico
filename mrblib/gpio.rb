@@ -8,15 +8,22 @@
 #   led.write(1)
 #   value = led.read
 class GPIO
-  # ピンモード定数
-  IN = 0x00        # 入力に設定
-  OUT = 0x01       # 出力に設定
-  # HIGH_Z = 0     # ハイインピーダンスに設定 https://forums.raspberrypi.com/viewtopic.php?t=330102
-  PULL_UP = 0x10   # 内部プルアップを有効化
-  PULL_DOWN = 0x20 # 内部プルダウンを有効化
-  # OPEN_DRAIN = 0 # オープンドレインモードに設定 https://github.com/raspberrypi/pico-sdk/issues/752
-
-  attr_reader :pin
+  # Ruby側のピンモード定数（C拡張のPico SDKが期待する値とは異なる）
+  #
+  #   |    Mode    | Ruby | Pico SDK |
+  #   |------------|------|----------|
+  #   | IN         | 0x01 |   0x00   | 入力
+  #   | OUT        | 0x02 |   0x01   | 出力
+  #   | HIGH_Z     | 0x04 |   ----   | ハイインピーダンス：SDKにAPIなし（INで代用可） https://forums.raspberrypi.com/viewtopic.php?t=330102
+  #   | PULL_UP    | 0x08 |   0x10   | 内部プルアップ
+  #   | PULL_DOWN  | 0x10 |   0x20   | 内部プルダウン
+  #   | OPEN_DRAIN | 0x20 |   ----   | オープンドレインモード：SDKにAPIなし https://github.com/raspberrypi/pico-sdk/issues/752
+  IN = 0x01
+  OUT = 0x02
+  # HIGH_Z = 0x04
+  PULL_UP = 0x08
+  PULL_DOWN = 0x10
+  # OPEN_DRAIN = 0x20
 
   # 指定されたピンのGPIOインスタンスの初期化
   #
@@ -54,7 +61,7 @@ class GPIO
   #     puts "Low"
   #   end
   def read
-    mrbc_pico_gpio_get(pin)
+    mrbc_pico_gpio_get(@pin)
   end
 
   # ピンの値がハイレベル（1）かどうかの確認
@@ -102,15 +109,19 @@ class GPIO
   # @example
   #   pin.setmode(GPIO::IN | GPIO::PULL_UP)
   def setmode(params)
+    real_mode = 0
+    real_mode |= 0x01 if params & OUT != 0
+    real_mode |= 0x10 if params & PULL_UP != 0
+    real_mode |= 0x20 if params & PULL_DOWN != 0
+
     # IN/OUTが指定された場合は初期化と方向設定を行う
-    direction = params & (IN | OUT)
-    if direction != 0
-      mrbc_pico_gpio_init(pin)
-      mrbc_pico_gpio_set_dir(pin, direction)
+    if params & (IN | OUT) != 0
+      mrbc_pico_gpio_init(@pin)
+      mrbc_pico_gpio_set_dir(@pin, real_mode & 0x01)
     end
 
     # PULL_UP/PULL_DOWNは常に適用
-    mrbc_pico_gpio_set_pulls(pin, params & PULL_UP, params & PULL_DOWN)
+    mrbc_pico_gpio_set_pulls(@pin, real_mode & 0x10, real_mode & 0x20)
     nil
   end
 end

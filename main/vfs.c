@@ -209,7 +209,7 @@ int vfs_unmount() {
 /** @brief ファイルのCRC8チェックサム計算
 
   指定されたファイルの内容からCRC8チェックサムを計算する．
-  生成多項式は0x07を使用し，初期値は0xFFとする．
+  生成多項式は0x31を使用し，初期値は0xFFとする．
 
   @param filename 対象ファイル名
   @param _crc CRC8値を格納する変数のポインタ（NULLの場合は無視される）
@@ -218,7 +218,7 @@ int vfs_unmount() {
 int vfs_crc8(const char* filename, uint8_t* _crc) {
   // CRC8初期値と生成多項式の設定
   uint8_t crc = 0xFF;
-  const uint8_t poly = 0x07;
+  const uint8_t poly = 0x31;
 
   // ファイルの内容を動的メモリで読み込み
   uint8_t *buffer = NULL;
