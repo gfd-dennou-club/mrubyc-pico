@@ -39,9 +39,12 @@ build/%/Makefile: CMakeLists.txt
 
 # ビルドツールのセットアップ
 #
-# mrubyコンパイラ（mrbc）をビルドする．
+# 下記を生成する．
+# - mrubyコンパイラ（mrbc）
+# - mruby/cの自動生成ヘッダ
 setup:
 	@$(MAKE) --no-print-directory -C components/mruby
+	@$(MAKE) --no-print-directory -C components/mrubyc/src autogen
 
 # ビルド成果物の削除
 clean:
