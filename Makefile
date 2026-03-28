@@ -9,7 +9,7 @@
 # ====================================================================
 
 # Makefileで定義されるコマンド一覧（非ファイル）
-.PHONY: default all clean mrbc help pico pico2
+.PHONY: default all clean help pico pico2 setup
 
 # make コマンドのデフォルトターゲット
 .DEFAULT_GOAL := default
@@ -37,13 +37,15 @@ pico pico2: %: build/%/Makefile
 build/%/Makefile: CMakeLists.txt
 	@cmake -S . -B build/$* -DPICO_BOARD=$*
 
+# ビルドツールのセットアップ
+#
+# mrubyコンパイラ（mrbc）をビルドする．
+setup:
+	@$(MAKE) --no-print-directory -C components/mruby
+
 # ビルド成果物の削除
 clean:
 	@rm -rf build/*
-
-mrbc:
-	@mkdir -p build
-	@mrbc -o build/master.mrbc src/master.rb
 
 # 利用可能なコマンドの表示
 help:
@@ -54,5 +56,6 @@ help:
 	@echo "  all         Build for all boards."
 	@echo "  pico        Build for Pico."
 	@echo "  pico2       Build for Pico 2."
+	@echo "  setup       Build tools (run once after clone)."
 	@echo "  clean       Remove all build artifacts."
 	@echo "  help        Show this help message."
