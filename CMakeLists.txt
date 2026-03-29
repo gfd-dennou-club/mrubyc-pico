@@ -36,7 +36,6 @@ target_sources(main PUBLIC
   main/mrbc_pico_bootsel.c
   main/mrbc_pico_break.c
   main/bootsel.c
-  main/hal.c
   main/mrbwrite.c
   main/vfs.c
   ${CMAKE_CURRENT_BINARY_DIR}/mrblib.c
