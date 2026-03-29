@@ -1,0 +1,37 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y cmake gcc-arm-none-eabi ruby
+
+      - name: Setup
+        run: make setup
+
+      - name: Build
+        run: make all
+
+      - name: Rename UF2
+        run: |
+          TAG=${GITHUB_REF_NAME}
+          cp build/pico/main.uf2 "PICO-${TAG}.uf2"
+          cp build/pico2/main.uf2 "PICO2-${TAG}.uf2"
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: PICO*.uf2
