@@ -1,8 +1,8 @@
 # オンボードLED点滅サンプル
 #
-# Raspberry Pi PicoのオンボードLED（GPIO25）を1秒間隔で点滅させる．
+# Raspberry Pi PicoのオンボードLEDを1秒間隔で点滅させる．
 
-led = GPIO.new(25, GPIO::OUT)
+led = GPIO.new("LED", GPIO::OUT)
 
 while true
   led.write(1)

@@ -30,6 +30,10 @@ int mrbwrite_cmd_mode();
 #include "mrbc_pico_bootsel.h"
 #include "mrbc_pico_break.h"
 
+#if PICO_CYW43_SUPPORTED
+#include "mrbc_pico_cyw43.h"
+#endif
+
 //*********************************************
 // ENABLE LIBRARY written by C (Utilities)
 //*********************************************
@@ -109,6 +113,10 @@ int main() {
   mrbc_pico_uart_gem_init(0);
   mrbc_pico_bootsel_gem_init(0);
   mrbc_pico_break_gem_init(0);
+
+#if PICO_CYW43_SUPPORTED
+  mrbc_pico_cyw43_gem_init(0);
+#endif
 
   // Ruby 側のクラス・メソッド定義
   extern const uint8_t myclass_bytecode[];

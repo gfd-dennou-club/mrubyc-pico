@@ -30,6 +30,8 @@ jobs:
           TAG=${GITHUB_REF_NAME}
           cp build/pico/main.uf2 "PICO-${TAG}.uf2"
           cp build/pico2/main.uf2 "PICO2-${TAG}.uf2"
+          cp build/pico_w/main.uf2 "PICO_W-${TAG}.uf2"
+          cp build/pico2_w/main.uf2 "PICO2_W-${TAG}.uf2"
 
       - name: Release
         uses: softprops/action-gh-release@v2
