@@ -2,33 +2,35 @@
 #  MakefileによるCMakeビルド手順の簡略化
 #
 #  CMakeのビルドプロセスを簡略化するためのラッパー．
-#  複数のボード（Pico、Pico2など）に対応するため `make` のみを実行すると選択メニューが表示される．
+#  複数のボードに対応するため `make` のみを実行すると選択メニューが表示される．
 #
 #  `make pico` など直接ボードを指定すると，そのボード用のファームウェアのみビルドされる．
 #  `make all` の場合は全てのボード用のファームウェアがビルドされる．
 # ====================================================================
 
 # Makefileで定義されるコマンド一覧（非ファイル）
-.PHONY: default all clean help pico pico2 setup
+.PHONY: default all clean help pico pico2 pico_w pico2_w setup
 
 # make コマンドのデフォルトターゲット
 .DEFAULT_GOAL := default
 
 # ボード選択メニュー（選択後に `make <board>` が呼び出される）
 default:
-	@echo -n "1) pico  2) pico2 : "; \
+	@echo -n "1) pico  2) pico2  3) pico_w  4) pico2_w : "; \
 	read choice; \
 	case $$choice in \
 		1) $(MAKE) pico;; \
 		2) $(MAKE) pico2;; \
+		3) $(MAKE) pico_w;; \
+		4) $(MAKE) pico2_w;; \
 		*) echo "Invalid selection" >&2; exit 1;; \
 	esac
 
 # 全ボードビルド
-all: pico pico2
+all: pico pico2 pico_w pico2_w
 
 # ボードターゲット（CMake設定済みのビルドディレクトリに依存）
-pico pico2: %: build/%/Makefile
+pico pico2 pico_w pico2_w: %: build/%/Makefile
 	@$(MAKE) --no-print-directory -C build/$*
 
 # CMakeのビルド設定ファイル（Makefile）の生成ルール
@@ -59,6 +61,8 @@ help:
 	@echo "  all         Build for all boards."
 	@echo "  pico        Build for Pico."
 	@echo "  pico2       Build for Pico 2."
+	@echo "  pico_w      Build for Pico W."
+	@echo "  pico2_w     Build for Pico2 W."
 	@echo "  setup       Build tools (run once after clone)."
 	@echo "  clean       Remove all build artifacts."
 	@echo "  help        Show this help message."

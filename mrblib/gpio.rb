@@ -4,7 +4,8 @@
 # - https://github.com/mruby/microcontroller-peripheral-interface-guide
 #
 # @example
-#   led = GPIO.new(25, GPIO::OUT)
+#   led = GPIO.new(25, GPIO::OUT)    # ピン番号で指定
+#   led = GPIO.new("LED", GPIO::OUT) # オンボードLED（Pico/Pico2: GPIO 25，Pico W/Pico2 W: CYW43 GPIO 0）
 #   led.write(1)
 #   value = led.read
 class GPIO
@@ -27,7 +28,7 @@ class GPIO
 
   # 指定されたピンのGPIOインスタンスの初期化
   #
-  # @param pin [Integer, String] ピン番号または識別子（文字列の場合は#to_iが呼び出される）
+  # @param pin [Integer, String] ピン番号または識別子（"LED"でオンボードLED）
   # @param params [Integer] ピンモード（ピンモード定数を参照）
   # @raise [ArgumentError] ピンまたはパラメータが無効な場合
   #
@@ -35,17 +36,23 @@ class GPIO
   #   # ピン番号25を出力に設定
   #   pin = GPIO.new(25, GPIO::OUT)
   def initialize(pin, params)
+    # 型チェック
     if !pin.is_a?(Integer) && !pin.is_a?(String)
       raise ArgumentError, "Invalid pin type: #{pin.class}"
+    end
+    if pin.is_a?(String) && pin != "LED"
+      raise ArgumentError, "Invalid pin identifier: #{pin}"
     end
     if !params.is_a?(Integer)
       raise ArgumentError, "Invalid params type: #{params.class}"
     end
+
     # IN または OUT の指定は必須（HIGH_Zは未サポート）
     if params & (IN | OUT) == 0
       raise ArgumentError, "IN or OUT must be specified"
     end
-    @pin = pin.to_i
+
+    @pin = pin
     setmode(params)
   end
 
@@ -61,7 +68,11 @@ class GPIO
   #     puts "Low"
   #   end
   def read
-    mrbc_pico_gpio_get(@pin)
+    if cyw43_pin?
+      mrbc_pico_cyw43_gpio_get(pin_number)
+    else
+      mrbc_pico_gpio_get(pin_number)
+    end
   end
 
   # ピンの値がハイレベル（1）かどうかの確認
@@ -95,7 +106,11 @@ class GPIO
   # @example
   #   pin.write(1)
   def write(integer_data)
-    mrbc_pico_gpio_put(@pin, integer_data)
+    if cyw43_pin?
+      mrbc_pico_cyw43_gpio_put(pin_number, integer_data)
+    else
+      mrbc_pico_gpio_put(pin_number, integer_data)
+    end
     nil
   end
 
@@ -109,6 +124,9 @@ class GPIO
   # @example
   #   pin.setmode(GPIO::IN | GPIO::PULL_UP)
   def setmode(params)
+    # CYW43経由のオンボードLEDはモード設定不要（cyw43_arch_initで初期化済み）
+    return nil if cyw43_pin?
+
     real_mode = 0
     real_mode |= 0x01 if params & OUT != 0
     real_mode |= 0x10 if params & PULL_UP != 0
@@ -116,12 +134,30 @@ class GPIO
 
     # IN/OUTが指定された場合は初期化と方向設定を行う
     if params & (IN | OUT) != 0
-      mrbc_pico_gpio_init(@pin)
-      mrbc_pico_gpio_set_dir(@pin, real_mode & 0x01)
+      mrbc_pico_gpio_init(pin_number)
+      mrbc_pico_gpio_set_dir(pin_number, real_mode & 0x01)
     end
 
     # PULL_UP/PULL_DOWNは常に適用
-    mrbc_pico_gpio_set_pulls(@pin, real_mode & 0x10, real_mode & 0x20)
+    mrbc_pico_gpio_set_pulls(pin_number, real_mode & 0x10, real_mode & 0x20)
     nil
   end
+
+  private
+
+    # 実際のピン番号への解決
+    #
+    # 初期化時に識別子（"LED"文字列）が指定されていた場合，ボード固有のデフォルトLEDのピン番号に解決する．
+    #
+    # @return [Integer] ピン番号
+    def pin_number
+      @pin == "LED" ? mrbc_pico_default_led_pin : @pin
+    end
+
+    # ピンがCYW43ドライバ経由で制御されるピンかどうか
+    #
+    # @return [Boolean] CYW43ドライバ経由の場合はtrue
+    def cyw43_pin?
+      @pin == "LED" && mrbc_pico_default_led_controlled_by_cyw43?
+    end
 end

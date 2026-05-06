@@ -17,6 +17,8 @@ Ruby実行中，または終了後にボードのUSB（UART）へBreak信号が�
 |--------|--------|------------------|
 | Raspberry Pi Pico | RP2040 | `make pico` |
 | Raspberry Pi Pico 2 | RP2350 | `make pico2` |
+| Raspberry Pi Pico W | RP2040 + CYW43 | `make pico_w` |
+| Raspberry Pi Pico2 W | RP2350 + CYW43 | `make pico2_w` |
 
 ## クラスライブラリ
 
@@ -48,10 +50,12 @@ make setup   # mrubyコンパイラ（mrbc）のビルド
 # ファームウェア変更のたび（利用するボードのコマンドを実行）
 make pico    # => build/pico/main.uf2
 make pico2   # => build/pico2/main.uf2
+make pico_w  # => build/pico_w/main.uf2
+make pico2_w # => build/pico2_w/main.uf2
 make all     # => 上記すべて
 ```
 
-ビルド成果物は`build/{pico,pico2}/main.uf2`に出力されます．
+ビルド成果物は`build/{pico,pico2,pico_w,pico2_w}/main.uf2`に出力されます．
 
 Raspberry Pi PicoボードのBOOTSELボタンを押しながらUSBケーブルでPCと接続すると，USBメモリのようにファイルを書き込めるようになります．
 
