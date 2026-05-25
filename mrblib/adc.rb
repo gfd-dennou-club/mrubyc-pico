@@ -43,7 +43,6 @@ class ADC
     end
 
     mrbc_pico_adc_gpio_init(@pin)
-    mrbc_pico_adc_select_input(@channel)
   end
 
   # ADC値をボルト単位で読み取り
@@ -51,7 +50,7 @@ class ADC
   # @return [Float] 電圧値（V）
   #
   # @example
-  #   voltage = adc.read_voltage()
+  #   voltage = adc.read_voltage
   #   puts "Voltage: #{voltage}V"
   def read_voltage
     read_raw * CONVERSION_FACTOR
@@ -62,7 +61,7 @@ class ADC
   # @return [Float] 電圧値（V）
   #
   # @example
-  #   voltage = adc.read()
+  #   voltage = adc.read
   def read
     read_voltage
   end
@@ -72,9 +71,10 @@ class ADC
   # @return [Integer] 12bitのADC値（0-4095）
   #
   # @example
-  #   raw_value = adc.read_raw()
+  #   raw_value = adc.read_raw
   #   puts "Raw ADC: #{raw_value}"
   def read_raw
-    mrbc_pico_adc_read()
+    mrbc_pico_adc_select_input(@channel)
+    mrbc_pico_adc_read
   end
 end
