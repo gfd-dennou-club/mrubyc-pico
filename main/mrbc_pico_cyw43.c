@@ -1,5 +1,5 @@
 /*! @file
-  @brief Raspberry Pi Pico W / Pico2 W向けCYW43チップ制御のための関数群
+  @brief Raspberry Pi Pico W / Pico 2 W向けmruby/c CYW43の関数群
 
   CYW43ドライバによるGPIO・通信制御のための関数をRubyから利用可能にする．
   Ruby向けクラス・メソッドはRubyコードにて実装される．
@@ -307,7 +307,7 @@ static void mrbc_pico_lwip_ip4_dns(mrb_vm* vm, mrb_value* v, int argc)
   非同期のため次の順番で呼び出す．
   - mrbc_pico_lwip_dns_start  : 名前解決の開始．
   - mrbc_pico_lwip_dns_done?  : 名前解決が終了したかどうか（成功または失敗で終了）．
-  - mrbc_pico_lwip_dns_result : IPアドレス、または失敗時はnilの取得．
+  - mrbc_pico_lwip_dns_result : IPアドレス，または失敗時はnilの取得．
 
   pico-sdkのAPIは下記を参照:
   - https://www.raspberrypi.com/documentation/pico-sdk/networking.html
@@ -393,7 +393,7 @@ static void mrbc_pico_lwip_dns_result(mrb_vm* vm, mrb_value* v, int argc)
 // TCPコネクション状態
 typedef struct {
   struct altcp_pcb *pcb;        // lwIP altcp PCB（未初期化／エラー時はNULL）
-  volatile bool     connected;  // TCP接続、TLSの場合はハンドシェイクの完了
+  volatile bool     connected;  // TCP接続，TLSの場合はハンドシェイクの完了
   volatile bool     closed;     // 切断検知（FIN受信またはエラー）
   volatile int      err_code;   // 直近のlwIPエラーコード
   uint8_t           rx_buf[MRBC_PICO_LWIP_TCP_RXBUF_SIZE];
@@ -453,7 +453,7 @@ static err_t pico_lwip_tcp_connected_callback(void *arg, struct altcp_pcb *pcb, 
 
 /*! @brief mrbc_pico_lwip_tcp_open() plain TCP用の接続設定の生成
 
-  TCP PCBを生成して、受信／エラーのコールバックを登録する．
+  TCP PCBを生成して，受信／エラーのコールバックを登録する．
   lwIPロック内で呼ぶこと．
 
   @return 成功したかどうか
@@ -474,7 +474,7 @@ static void mrbc_pico_lwip_tcp_open(mrb_vm* vm, mrb_value* v, int argc)
 
 /*! @brief mrbc_pico_lwip_tcp_open_tls() TLS用TCP用の接続設定の生成
 
-  TCP PCBを生成して、受信／エラーのコールバックを登録する．
+  TCP PCBを生成して，受信／エラーのコールバックを登録する．
   lwIPロック内で呼ぶこと．
 
   @return 成功でtrue，config作成失敗またはPCB作成失敗でfalse

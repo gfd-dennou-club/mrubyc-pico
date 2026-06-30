@@ -5,7 +5,7 @@
 #
 # @example
 #   led = GPIO.new(25, GPIO::OUT)    # ピン番号で指定
-#   led = GPIO.new("LED", GPIO::OUT) # オンボードLED（Pico/Pico2: GPIO 25，Pico W/Pico2 W: CYW43 GPIO 0）
+#   led = GPIO.new("LED", GPIO::OUT) # オンボードLED（Pico/Pico 2: GPIO 25，Pico W/Pico 2 W: CYW43 GPIO 0）
 #   led.write(1)
 #   value = led.read
 class GPIO
@@ -99,7 +99,7 @@ class GPIO
     read == 0
   end
 
-  # ピンへ値の書き込み
+  # ピンへの値の書き込み
   #
   # @param integer_data [Integer] 書き込む値（0 または 1）
   #

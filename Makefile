@@ -62,7 +62,7 @@ help:
 	@echo "  pico        Build for Pico."
 	@echo "  pico2       Build for Pico 2."
 	@echo "  pico_w      Build for Pico W."
-	@echo "  pico2_w     Build for Pico2 W."
+	@echo "  pico2_w     Build for Pico 2 W."
 	@echo "  setup       Build tools (run once after clone)."
 	@echo "  clean       Remove all build artifacts."
 	@echo "  help        Show this help message."

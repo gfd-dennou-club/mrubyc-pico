@@ -85,7 +85,7 @@ static const struct lfs_config cfg = {
   // ブロックデバイス設定
   .read_size = 1, // 読み取り操作の最小単位（cache_sizeとblock_sizeの約数）
   .prog_size = FLASH_PAGE_SIZE, // 書き込み操作の最小単位（cache_sizeとblock_sizeの約数）
-  .block_size = FLASH_SECTOR_SIZE, // 消去可能なブロックのサイズ（=cache_size、read_sizeとprog_sizeの倍数）
+  .block_size = FLASH_SECTOR_SIZE, // 消去可能なブロックのサイズ（=cache_size，read_sizeとprog_sizeの倍数）
   .block_count = 512 * 1024 / FLASH_SECTOR_SIZE, // デバイス上の総ブロック数（ファイルシステムサイズ[512KiB]/block_size）
   .cache_size = FLASH_SECTOR_SIZE, // キャッシュバッファのサイズ（=block_size）
   .lookahead_size = 16, // 空きブロック探索用ルックアヘッドバッファのサイズ

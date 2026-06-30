@@ -2,7 +2,7 @@
   @brief Raspberry Pi Pico向けmruby/c ADCの関数群
 
   ADC（Analog to Digital Converter）制御機能をRubyから利用可能にする．
-  Ruby向けのAPIはRubyコードにて実装される．
+  Ruby向けクラス・メソッドはRubyコードにて実装される．
 
   APIガイドは下記を参照:
   - https://github.com/mruby/microcontroller-peripheral-interface-guide

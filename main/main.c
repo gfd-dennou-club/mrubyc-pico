@@ -68,9 +68,9 @@ int main() {
   //************************************
   // mrbcwrite モード
   //************************************
-  // mrbwriteコマンドモードの待機。
-  // a. Enter (CR+LF) が打鍵された場合はコマンドモードに入る。
-  // b. BOOTSELボタンが押された場合は実行モードに入る。
+  // mrbwriteコマンドモードの待機．
+  // a. Enter (CR+LF) が打鍵された場合はコマンドモードに入る．
+  // b. BOOTSELボタンが押された場合は実行モードに入る．
   printf("Kani-Board, Please push Enter key to mrbwite mode\r\n");
   while (!bootsel_get()) {
     int cmd = mrbwrite_get_cmd(10 * 1000, NULL); // 10ミリ秒のタイムアウト
@@ -80,12 +80,12 @@ int main() {
       break; // mrbwriteコマンドモードを抜けた場合は即座に実行モードに入る
     }
   }
-  //書き込みモード終了
+  // 書き込みモード終了
   printf("Kani-Board, End mrbwrite mode\r\n");
   printf("Kani-Board, mruby/c v3.4 start\r\n");
 
   //************************************
-  // Rubyコード読み出し
+  // Rubyコード読み込み
   //************************************
   uint8_t *master_bytecode = NULL;
   uint32_t master_size = 0;
