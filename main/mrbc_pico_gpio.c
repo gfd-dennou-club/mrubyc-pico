@@ -119,7 +119,7 @@ static void mrbc_pico_default_led_pin(mrb_vm* vm, mrb_value* v, int argc)
 
   デフォルトLEDが通常GPIOではなくCYW43ドライバ経由で制御されるボードかを判定する．
 
-  @return true: CYW43制御（Pico W / Pico2 W），false: 通常GPIO制御（Pico / Pico 2）
+  @return true: CYW43制御（Pico W / Pico 2 W），false: 通常GPIO制御（Pico / Pico 2）
 */
 static void mrbc_pico_default_led_controlled_by_cyw43(mrb_vm* vm, mrb_value* v, int argc)
 {

@@ -123,7 +123,7 @@ class UART
     result
   end
 
-  # UARTへデータの書き込み（ブロッキング）
+  # UARTへのデータの書き込み（ブロッキング）
   #
   # @param string [String, Array<Integer>] 書き込むデータ（文字列または配列）
   #
@@ -166,9 +166,9 @@ class UART
     result
   end
 
-  # UARTに1行送信（ブロッキング）
+  # UARTへの1行書き込み（ブロッキング）
   #
-  # 引数stringが改行で終わっていない場合は改行コード（LF）を送信する．
+  # 引数stringが改行で終わっていない場合は改行コード（LF）を書き込む．
   #
   # @param string [String] 送信する文字列
   #

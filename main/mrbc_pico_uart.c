@@ -147,7 +147,7 @@ void mrbc_pico_uart_getc(mrb_vm* vm, mrb_value* v, int argc)
   SET_INT_RETURN(ch);
 }
 
-/*! @brief mrbc_pico_uart_putc_raw(unit, c) UARTに1文字書き込み（ブロッキング）
+/*! @brief mrbc_pico_uart_putc_raw(unit, c) UARTへの1文字書き込み（ブロッキング）
 
   @param unit UARTユニット番号（0または1）
   @param c 書き込む文字コード

@@ -95,7 +95,7 @@ void mrbc_pico_i2c_read_blocking(mrb_vm* vm, mrb_value* v, int argc)
     return;
   }
 
-  // 先にStringを確保し、内部バッファに直接読み込む
+  // 先にStringを確保し，内部バッファに直接読み込む
   mrb_value rval = mrbc_string_new(vm, NULL, len);
   if (rval.string == NULL) {
     SET_RETURN(mrbc_string_new(vm, "", 0));

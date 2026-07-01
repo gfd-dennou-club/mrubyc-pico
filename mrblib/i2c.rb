@@ -90,7 +90,7 @@ class I2C
   #   data = i2c.read(0x45, 3, 0xf3)
   def read(i2c_adrs_7, read_bytes, *param)
     unless param.empty?
-      # 書き込み処理（リピーテッドスタート用、nostop=1）
+      # 書き込み処理（リピーテッドスタート用，nostop=1）
       write_data = ""
       param.each { |p| write_data << p.to_i.chr }
       result = mrbc_pico_i2c_write_blocking(@unit, i2c_adrs_7, write_data, 1)
@@ -101,7 +101,7 @@ class I2C
     mrbc_pico_i2c_read_blocking(@unit, i2c_adrs_7, read_bytes, 0)
   end
 
-  # I2Cデバイスにデータの書き込み
+  # I2Cデバイスへのデータの書き込み
   #
   # @param i2c_adrs_7 [Integer] 7ビットI2Cアドレス
   # @param outputs [Array<Integer>, Integer] 書き込むデータ（整数または配列）

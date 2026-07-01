@@ -9,7 +9,7 @@ Raspberry Pi Pico / Pico 2向けmruby/cファームウェア・クラスライ�
 
 mrbwriteで書き込まれたRubyは，電源投入後のBOOTSELボタン押下で実行されます．
 
-Ruby実行中，または終了後にボードのUSB（UART）へBreak信号が送信された場合，ソフトリセットされます。
+Ruby実行中，または終了後にボードのUSB（UART）へBreak信号が送信された場合，ソフトリセットされます．
 
 ## 対応ボード
 
@@ -18,7 +18,7 @@ Ruby実行中，または終了後にボードのUSB（UART）へBreak信号が�
 | Raspberry Pi Pico | RP2040 | `make pico` |
 | Raspberry Pi Pico 2 | RP2350 | `make pico2` |
 | Raspberry Pi Pico W | RP2040 + CYW43 | `make pico_w` |
-| Raspberry Pi Pico2 W | RP2350 + CYW43 | `make pico2_w` |
+| Raspberry Pi Pico 2 W | RP2350 + CYW43 | `make pico2_w` |
 
 ## クラスライブラリ
 
