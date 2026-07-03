@@ -96,6 +96,15 @@ int main() {
     }
   }
 
+  uint8_t *slave_bytecode = NULL;
+  uint32_t slave_size = 0;
+  if (vfs_stat_size("slave.mrbc", &slave_size) >= 0 && slave_size > 0) {
+    slave_bytecode = calloc(slave_size, sizeof(uint8_t));
+    if (slave_bytecode != NULL) {
+      vfs_read("slave.mrbc", slave_bytecode, slave_size);
+    }
+  }
+
   //************************************
   // ファイルシステムアンマウント
   //************************************
@@ -127,11 +136,22 @@ int main() {
   //***************************************
   if (master_bytecode != NULL) {
     mrbc_create_task(master_bytecode, 0);
+    if (slave_bytecode != NULL) {
+      mrbc_create_task(slave_bytecode, 0);
+    }
     mrbc_run();
     free(master_bytecode);
     master_bytecode = NULL;
+    if (slave_bytecode != NULL) {
+      free(slave_bytecode);
+      slave_bytecode = NULL;
+    }
   } else {
     printf("Not master.mrbc exists.\r\n");
+    if (slave_bytecode != NULL) {
+      free(slave_bytecode);
+      slave_bytecode = NULL;
+    }
   }
 
   return 0;
@@ -181,27 +201,55 @@ int mrbwrite_cmd_mode() {
   }
   // バイトコード書き込みコマンドの処理
   if (cmd == MRBWRITE_WRITE) {
-    buffer = calloc(buffer_size, sizeof(uint8_t));
-    uint32_t read_count = 0;
-    printf("+OK Write bytecode\r\n");
+    // 書き込み先の決定（1回目はmaster.mrbc、2回目はslave.mrbcへ書き込む）
+    uint32_t write_size = 0;
+    if (vfs_stat_size("master.mrbc", &write_size) < 0) {
+      buffer = calloc(buffer_size, sizeof(uint8_t));
+      uint32_t read_count = 0;
+      printf("+OK Write bytecode\r\n");
 
-    // バイトコードの連続読み込み
-    for (; read_count < buffer_size; read_count++) {
-      int input = getchar_timeout_us(60 * 1000 * 1000);
-      if (input == PICO_ERROR_TIMEOUT) {
-        break;
+      // バイトコードの連続読み込み
+      for (; read_count < buffer_size; read_count++) {
+        int input = getchar_timeout_us(60 * 1000 * 1000);
+        if (input == PICO_ERROR_TIMEOUT) {
+          break;
+        }
+        buffer[read_count] = (uint8_t)(input & 0xFF);
       }
-      buffer[read_count] = (uint8_t)(input & 0xFF);
-    }
 
-    // 書き込み結果の判定とファイル保存
-    if (read_count == buffer_size) {
-      vfs_write("master.mrbc", buffer, buffer_size);
-      printf("+DONE\r\n");
+      // 書き込み結果の判定とファイル保存
+      if (read_count == buffer_size) {
+        vfs_write("master.mrbc", buffer, buffer_size);
+        printf("+DONE\r\n");
+      } else {
+        printf("-ERR Timeout while reading bytecode. Expected %d bytes, got %d bytes.\r\n", buffer_size, read_count);
+      }
+      free(buffer);
+    } else if (vfs_stat_size("slave.mrbc", &write_size) < 0) {
+      buffer = calloc(buffer_size, sizeof(uint8_t));
+      uint32_t read_count = 0;
+      printf("+OK Write bytecode\r\n");
+
+      // バイトコードの連続読み込み
+      for (; read_count < buffer_size; read_count++) {
+        int input = getchar_timeout_us(60 * 1000 * 1000);
+        if (input == PICO_ERROR_TIMEOUT) {
+          break;
+        }
+        buffer[read_count] = (uint8_t)(input & 0xFF);
+      }
+
+      // 書き込み結果の判定とファイル保存
+      if (read_count == buffer_size) {
+        vfs_write("slave.mrbc", buffer, buffer_size);
+        printf("+DONE\r\n");
+      } else {
+        printf("-ERR Timeout while reading bytecode. Expected %d bytes, got %d bytes.\r\n", buffer_size, read_count);
+      }
+      free(buffer);
     } else {
-      printf("-ERR Timeout while reading bytecode. Expected %d bytes, got %d bytes.\r\n", buffer_size, read_count);
+      printf("-ERR Failed to determine file to write.\r\n");
     }
-    free(buffer);
   }
   // ファイル消去コマンドの処理
   if (cmd == MRBWRITE_CLEAR) {
@@ -249,15 +297,12 @@ int mrbwrite_cmd_mode() {
 
   // バイトコード検証コマンドの処理
   if (cmd == MRBWRITE_VERIFY) {
-    printf("+OK\r\n");
     uint8_t crc = 0x00;
     if (vfs_crc8("master.mrbc", &crc) >= 0) {
-      printf("+OK master.mrbc CRC8: %02x\r\n", crc);
+      printf("+OK %02x\r\n", crc);
+    } else {
+      printf("-ERR Not master.mrbc exists.\r\n");
     }
-    if (vfs_crc8("slave.mrbc", &crc) >= 0) {
-      printf("+OK slave.mrbc CRC8: %02x\r\n", crc);
-    }
-    printf("+DONE\r\n");
   }
   return 1;
 }
