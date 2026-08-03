@@ -104,7 +104,7 @@ set(MRBC ${CMAKE_SOURCE_DIR}/components/mruby/build/host/bin/mrbc)
 # mruby/c組み込みのRubyクラスのコンパイル（出力先: components/mrubyc/src/mrblib.c）
 add_dependencies(main mrubyc)
 add_custom_target(mrubyc
-  COMMAND make distclean all MRBC=${MRBC}
+  COMMAND make all MRBC=${MRBC}
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/components/mrubyc/mrblib
 )
 
