@@ -82,7 +82,7 @@ int main() {
   }
   // 書き込みモード終了
   printf("Kani-Board, End mrbwrite mode\r\n");
-  printf("Kani-Board, mruby/c v3.4 start\r\n");
+  printf("Kani-Board, mruby/c v4.0 start\r\n");
 
   //************************************
   // Rubyコード読み込み
@@ -323,7 +323,7 @@ int mrbwrite_cmd_mode() {
 
   // バージョン表示コマンドの処理
   if (cmd == MRBWRITE_VERSION) {
-    printf("+OK mruby/c v3.4 RITE0300 MRBW1.2\r\n");
+    printf("+OK mruby/c v4.0 RITE0400 MRBW1.2\r\n");
   }
   // プログラム表示コマンドの処理
   if (cmd == MRBWRITE_SHOWPROG) {
