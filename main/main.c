@@ -73,7 +73,7 @@ int main() {
   // b. BOOTSELボタンが押された場合は実行モードに入る．
   printf("Kani-Board, Please push Enter key to mrbwite mode\r\n");
   while (!bootsel_get()) {
-    int cmd = mrbwrite_get_cmd(10 * 1000, NULL); // 10ミリ秒のタイムアウト
+    int cmd = mrbwrite_get_cmd(10 * 1000, NULL, NULL); // 10ミリ秒のタイムアウト
     if (cmd == MRBWRITE_COMMAND_MODE) {
       printf("+OK mruby/c\r\n");
       while (mrbwrite_cmd_mode());
@@ -87,13 +87,39 @@ int main() {
   //************************************
   // Rubyコード読み込み
   //************************************
-  uint8_t *master_bytecode = NULL;
-  uint32_t master_size = 0;
-  if (vfs_stat_size("master.mrbc", &master_size) >= 0 && master_size > 0) {
-    master_bytecode = calloc(master_size, sizeof(uint8_t));
-    if (master_bytecode != NULL) {
-      vfs_read("master.mrbc", master_bytecode, master_size);
+  char filename[16];
+  uint32_t size = 0;
+
+  // ライブラリバイトコードの読み込み
+  uint32_t lib_count = 0;
+  uint8_t **lib_bytecode = NULL;
+  while (1) {
+    snprintf(filename, sizeof(filename), "lib_%02d.mrbc", lib_count + 1);
+    if (vfs_stat_size(filename, &size) < 0 || size == 0) {
+      break;
     }
+    lib_bytecode = realloc(lib_bytecode, (lib_count + 1) * sizeof(uint8_t *));
+    lib_bytecode[lib_count] = calloc(size, sizeof(uint8_t));
+    if (lib_bytecode[lib_count] != NULL) {
+      vfs_read(filename, lib_bytecode[lib_count], size);
+    }
+    lib_count++;
+  }
+
+  // タスクバイトコードの読み込み
+  uint32_t task_count = 0;
+  uint8_t **task_bytecode = NULL;
+  while (1) {
+    snprintf(filename, sizeof(filename), "task_%02d.mrbc", task_count + 1);
+    if (vfs_stat_size(filename, &size) < 0 || size == 0) {
+      break;
+    }
+    task_bytecode = realloc(task_bytecode, (task_count + 1) * sizeof(uint8_t *));
+    task_bytecode[task_count] = calloc(size, sizeof(uint8_t));
+    if (task_bytecode[task_count] != NULL) {
+      vfs_read(filename, task_bytecode[task_count], size);
+    }
+    task_count++;
   }
 
   //************************************
@@ -122,17 +148,36 @@ int main() {
   extern const uint8_t myclass_bytecode[];
   mrbc_run_mrblib(myclass_bytecode);
 
+  // ユーザ独自のライブラリのクラス・メソッド定義
+  for (uint32_t i = 0; i < lib_count; i++) {
+    if (lib_bytecode[i] != NULL) {
+      mrbc_run_mrblib(lib_bytecode[i]);
+    }
+  }
+
   //***************************************
   // Ruby 実行
   //***************************************
-  if (master_bytecode != NULL) {
-    mrbc_create_task(master_bytecode, 0);
+  if (task_count > 0) {
+    for (uint32_t i = 0; i < task_count; i++) {
+      if (task_bytecode[i] != NULL) {
+        mrbc_create_task(task_bytecode[i], 0);
+      }
+    }
     mrbc_run();
-    free(master_bytecode);
-    master_bytecode = NULL;
   } else {
-    printf("Not master.mrbc exists.\r\n");
+    printf("Not task exists.\r\n");
   }
+
+  // バイトコードの解放
+  for (uint32_t i = 0; i < task_count; i++) {
+    free(task_bytecode[i]);
+  }
+  free(task_bytecode);
+  for (uint32_t i = 0; i < lib_count; i++) {
+    free(lib_bytecode[i]);
+  }
+  free(lib_bytecode);
 
   return 0;
 }
@@ -152,8 +197,9 @@ int mrbwrite_cmd_mode() {
   // writeコマンドで使用するバッファ
   uint32_t buffer_size = 0;
   uint8_t *buffer = NULL;
+  int32_t crc = -1;
   // バッファの初期化とコマンド入力の受付
-  int cmd = mrbwrite_get_cmd((uint32_t)3600 * 1000 * 1000, &buffer_size); // 1時間のタイムアウト
+  int cmd = mrbwrite_get_cmd((uint32_t)3600 * 1000 * 1000, &buffer_size, &crc); // 1時間のタイムアウト
 
   // コマンドエラーでは処理継続
   if (cmd == MRBWRITE_ILLEGAL) {
@@ -181,6 +227,16 @@ int mrbwrite_cmd_mode() {
   }
   // バイトコード書き込みコマンドの処理
   if (cmd == MRBWRITE_WRITE) {
+    // 書き込み先の決定
+    char filename[16];
+    uint32_t size = 0;
+    for (int i = 1; ; i++) {
+      snprintf(filename, sizeof(filename), "task_%02d.mrbc", i);
+      if (vfs_stat_size(filename, &size) < 0) {
+        break;
+      }
+    }
+
     buffer = calloc(buffer_size, sizeof(uint8_t));
     uint32_t read_count = 0;
     printf("+OK Write bytecode\r\n");
@@ -195,19 +251,59 @@ int mrbwrite_cmd_mode() {
     }
 
     // 書き込み結果の判定とファイル保存
-    if (read_count == buffer_size) {
-      vfs_write("master.mrbc", buffer, buffer_size);
-      printf("+DONE\r\n");
-    } else {
+    if (read_count != buffer_size) {
       printf("-ERR Timeout while reading bytecode. Expected %d bytes, got %d bytes.\r\n", buffer_size, read_count);
+    } else if (crc >= 0 && mrbwrite_crc16(buffer, buffer_size) != (uint16_t)crc) {
+      printf("-ERR CRC mismatch.\r\n");
+    } else {
+      vfs_write(filename, buffer, buffer_size);
+      printf("+DONE\r\n");
+    }
+    free(buffer);
+  }
+  // ライブラリバイトコード書き込みコマンドの処理
+  if (cmd == MRBWRITE_WRITE_LIB) {
+    // 書き込み先の決定
+    char filename[16];
+    uint32_t size = 0;
+    for (int i = 1; ; i++) {
+      snprintf(filename, sizeof(filename), "lib_%02d.mrbc", i);
+      if (vfs_stat_size(filename, &size) < 0) {
+        break;
+      }
+    }
+
+    buffer = calloc(buffer_size, sizeof(uint8_t));
+    uint32_t read_count = 0;
+    printf("+OK Write bytecode\r\n");
+
+    // バイトコードの連続読み込み
+    for (; read_count < buffer_size; read_count++) {
+      int input = getchar_timeout_us(60 * 1000 * 1000);
+      if (input == PICO_ERROR_TIMEOUT) {
+        break;
+      }
+      buffer[read_count] = (uint8_t)(input & 0xFF);
+    }
+
+    // 書き込み結果の判定とファイル保存
+    if (read_count != buffer_size) {
+      printf("-ERR Timeout while reading bytecode. Expected %d bytes, got %d bytes.\r\n", buffer_size, read_count);
+    } else if (crc >= 0 && mrbwrite_crc16(buffer, buffer_size) != (uint16_t)crc) {
+      printf("-ERR CRC mismatch.\r\n");
+    } else {
+      vfs_write(filename, buffer, buffer_size);
+      printf("+DONE\r\n");
     }
     free(buffer);
   }
   // ファイル消去コマンドの処理
   if (cmd == MRBWRITE_CLEAR) {
-    vfs_remove("master.mrbc");
-    vfs_remove("slave.mrbc");
-    printf("+OK\r\n");
+    if (vfs_format() < 0) {
+      printf("-ERR Format failed.\r\n");
+    } else {
+      printf("+OK\r\n");
+    }
   }
 
   // ヘルプコマンドの処理
@@ -216,6 +312,7 @@ int mrbwrite_cmd_mode() {
     printf("Commands:\r\n");
     printf("  version\r\n");
     printf("  write\r\n");
+    printf("  write_lib\r\n");
     printf("  showprog\r\n");
     printf("  clear\r\n");
     printf("  reset\r\n");
@@ -230,34 +327,40 @@ int mrbwrite_cmd_mode() {
   }
   // プログラム表示コマンドの処理
   if (cmd == MRBWRITE_SHOWPROG) {
-    if (vfs_stat_size("master.mrbc", &buffer_size) >= 0 && buffer_size > 0) {
+    char filename[16];
+    for (int i = 1; ; i++) {
+      snprintf(filename, sizeof(filename), "lib_%02d.mrbc", i);
+      if (vfs_stat_size(filename, &buffer_size) < 0) {
+        break;
+      }
       buffer = calloc(buffer_size, sizeof(uint8_t));
-      if (buffer != NULL && vfs_read("master.mrbc", buffer, buffer_size) > 0) {
-        mrbwrite_showprog("master.mrbc", buffer, buffer_size);
+      if (buffer != NULL && vfs_read(filename, buffer, buffer_size) > 0) {
+        mrbwrite_showprog(filename, buffer, buffer_size);
         free(buffer);
       }
     }
-    if (vfs_stat_size("slave.mrbc", &buffer_size) >= 0 && buffer_size > 0) {
+    for (int i = 1; ; i++) {
+      snprintf(filename, sizeof(filename), "task_%02d.mrbc", i);
+      if (vfs_stat_size(filename, &buffer_size) < 0) {
+        break;
+      }
       buffer = calloc(buffer_size, sizeof(uint8_t));
-      if (buffer != NULL && vfs_read("slave.mrbc", buffer, buffer_size) > 0) {
-        mrbwrite_showprog("slave.mrbc", buffer, buffer_size);
+      if (buffer != NULL && vfs_read(filename, buffer, buffer_size) > 0) {
+        mrbwrite_showprog(filename, buffer, buffer_size);
         free(buffer);
       }
     }
     printf("+DONE\r\n");
   }
 
-  // バイトコード検証コマンドの処理
+  // バイトコード検証コマンドの処理 [DEPRECATED] mrbwrite v1.3で削除
   if (cmd == MRBWRITE_VERIFY) {
-    printf("+OK\r\n");
     uint8_t crc = 0x00;
-    if (vfs_crc8("master.mrbc", &crc) >= 0) {
-      printf("+OK master.mrbc CRC8: %02x\r\n", crc);
+    if (vfs_crc8("task_01.mrbc", &crc) >= 0) {
+      printf("+OK %02x\r\n", crc);
+    } else {
+      printf("-ERR Not task_01.mrbc exists.\r\n");
     }
-    if (vfs_crc8("slave.mrbc", &crc) >= 0) {
-      printf("+OK slave.mrbc CRC8: %02x\r\n", crc);
-    }
-    printf("+DONE\r\n");
   }
   return 1;
 }

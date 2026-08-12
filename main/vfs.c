@@ -206,7 +206,28 @@ int vfs_unmount() {
   return lfs_unmount(&lfs);
 }
 
-/** @brief ファイルのCRC8チェックサム計算
+/** @brief ファイルシステムのリセット
+
+  ファイルシステムを再作成し，保存されているすべてのファイルを消去する．
+  フォーマットの前後でアンマウントとマウントを行う．
+
+  @return 成功時は0，失敗時は負の値を返す
+*/
+int vfs_format() {
+  int ret = lfs_unmount(&lfs);
+  if (ret < 0) {
+    return ret;
+  }
+
+  ret = lfs_format(&lfs, &cfg);
+  if (ret < 0) {
+    return ret;
+  }
+
+  return lfs_mount(&lfs, &cfg);
+}
+
+/** @brief ファイルのCRC8チェックサム計算 [DEPRECATED] mrbwrite v1.3で削除
 
   指定されたファイルの内容からCRC8チェックサムを計算する．
   生成多項式は0x31を使用し，初期値は0xFFとする．
